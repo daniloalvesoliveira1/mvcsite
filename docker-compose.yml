@@ -1,0 +1,104 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP .NET Core service.
+
+version: '3.4'
+
+services:
+  jaeger :
+        image: "jaegertracing/all-in-one:1.37"
+        hostname: jaeger
+        networks:
+            - development-network
+        environment:
+            COLLECTOR_OTLP_ENABLED: "true"   
+        ports:
+            - "16686:16686"
+            - "4317:4317"
+        volumes:                
+            - /mnt/d/wsl/volumedb/jaegger:/tmp
+  camunda :
+        image: "camunda/camunda-bpm-platform"
+        hostname: camunda
+        networks:
+            - development-network        
+        ports:
+            - "8080:8080"   
+        volumes:                
+            - /mnt/d/wsl/volumedb/camunda:/camunda/camunda-h2-dbs
+  mssql:
+        image: "mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04"
+        hostname: mssql
+        networks:
+            - development-network
+        environment:
+            SA_PASSWORD: "D@n123456"
+            ACCEPT_EULA: "Y"
+        ports:
+            - "1433:1433"
+        volumes:
+            - /mnt/d/wsl/volumedb/mssql/data:/var/opt/mssql/data
+            - /mnt/d/wsl/volumedb/mssql/log:/var/opt/mssql/log
+            - /mnt/d/wsl/volumedb/mssql/secrets:/var/opt/mssql/secrets
+  zookeeper:
+        image: docker.io/bitnami/zookeeper:3.8  
+        hostname: zookeeper  
+        networks:
+          - development-network 
+        ports:
+          - "2181:2181"
+        volumes:
+          - "/mnt/d/wsl/volumedb/zookeeper_data:/bitnami"
+        environment:
+          - ALLOW_ANONYMOUS_LOGIN=yes      
+  kafka:
+        image: docker.io/bitnami/kafka:3.2 
+        hostname: kafka   
+        networks:
+          - development-network 
+        ports:
+          - 9092:9092
+          - 9093:9093
+        volumes:
+          - "/mnt/d/wsl/volumedb/kafka_data:/bitnami"
+        environment:
+          - KAFKA_BROKER_ID=1
+          - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181           
+          - ALLOW_PLAINTEXT_LISTENER=yes          
+          - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+          - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+          - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://DESKTOP-VENBD47:9093
+          - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT       
+        depends_on:
+          - zookeeper
+
+  webapi:
+        image: webapi:1.0
+        hostname: webapi
+        networks:
+            - development-network
+        ports:
+          - 80:80
+        depends_on:
+          - mssql
+          - jaeger 
+  mvcsite:
+        image: mvcsite:1.0  
+        hostname: mvcsite
+        networks:
+          - development-network 
+        ports:
+          - 81:80
+        depends_on:
+          - webapi 
+          - camunda 
+  console:
+        image: console:1.0          
+        command: 2 "kafka:9092" "topico-danilo" 
+        networks:
+          - development-network 
+        depends_on:
+          - zookeeper 
+          - kafka 
+
+networks:
+    development-network:
+        driver: bridge

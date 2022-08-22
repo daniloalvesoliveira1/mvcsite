@@ -1,0 +1,72 @@
+﻿@model IEnumerable<MvcSite.Models.ProcessoViewModel>
+
+@{
+    ViewData["Title"] = "Processos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    @Html.ActionLink("Create New", "CreateProcess")
+</p>
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<table class="table" id="tblPessoas">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Key)
+            </th>
+             <th>
+                @Html.DisplayNameFor(model => model.Nome)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+<tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Key)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => item.Nome)
+            </td>
+             <td>
+                <button type="button" class="btn btn-link" data-item="@item.id" data-item2="@item.Key">Concluir</button>
+            </td>
+        </tr>
+    }
+    
+     </tbody>
+</table>
+@section Scripts {
+<script type="text/javascript">
+debugger;
+    $(document).ready(function () {
+        $(".btn-link").click(function () {
+            var id = $(this).attr('data-item');
+            var key = $(this).attr('data-item2');
+            if (confirm("Você tem certeza que gostaria de alterar este registro?")) {
+                $.ajax({
+                    method: "PUT",
+                    url: "/Solicitacao/CompleteProcess/" + id + "?key=" + key,
+                    success: function (data) {
+                       window.location.href = "/Solicitacao/ListProcess";
+                       
+                    },
+                    error: function (data) {
+                        alert("Houve um erro na pesquisa.");
+                    }
+                });
+            }
+        });
+    });
+</script>}
+

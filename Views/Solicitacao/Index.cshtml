@@ -1,0 +1,77 @@
+﻿@model IEnumerable<MvcSite.Models.SolicitacaoViewModel>
+
+@{
+    ViewData["Title"] = "Solicitacao";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<table class="table" id="tblPessoas">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.idSolicitacao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.dataSolicitacao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.descricaoSolicitacao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.status.idStatus)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+<tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.idSolicitacao)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.dataSolicitacao)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.descricaoSolicitacao)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.status.descricaoStatus)
+            </td>
+            <td>
+                <button type="button" class="btn btn-link" data-item="@item.idSolicitacao">Deletar</button>
+            </td>
+        </tr>
+    }
+    
+     </tbody>
+</table>
+@section Scripts {
+<script type="text/javascript">
+debugger;
+    $(document).ready(function () {
+        $(".btn-link").click(function () {
+            var id = $(this).attr('data-item');
+            if (confirm("Você tem certeza que gostaria de excluir este registro?")) {
+                $.ajax({
+                    method: "DELETE",
+                    url: "/Solicitacao/Delete/" + id,
+                    success: function (data) {
+                       window.location.href = "/Solicitacao/Index";
+                       
+                    },
+                    error: function (data) {
+                        alert("Houve um erro na pesquisa.");
+                    }
+                });
+            }
+        });
+    });
+</script>
+}

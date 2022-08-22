@@ -1,0 +1,4 @@
+CONSUMER consumer-group-id
+topic: topico-danilo
+partitions: 0
+from: 0

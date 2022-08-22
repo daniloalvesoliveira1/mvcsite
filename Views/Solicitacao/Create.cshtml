@@ -1,0 +1,42 @@
+﻿@model MvcSite.Models.SolicitacaoViewModel
+@{
+    ViewData["Title"] = "Solicitacao";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1>@ViewData["Title"]</h1>
+
+@using (Html.BeginForm())
+{
+     @Html.AntiForgeryToken()
+    <table class="table">
+        <tr>
+            <th>
+                @Html.LabelFor(model => model.descricaoSolicitacao)
+
+            </th>
+            <td>
+                @Html.EditorFor(model => model.descricaoSolicitacao)
+            </td>
+
+        </tr>
+         <tr>
+            <th>
+                @Html.LabelFor(model => model.status.descricaoStatus)
+
+            </th>
+            <td>
+                @Html.DropDownListFor(model => model.idStatus, null)
+            </td>
+
+        </tr>
+        <tr>
+            <td><input type="submit" value="Cadastrar" /></td>
+            <td>@Html.ActionLink("Back to List", "Index")</td>
+        </tr>
+        <tr>
+            <td>
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            </td>
+        </tr>
+    </table>
+}
